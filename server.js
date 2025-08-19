@@ -3,13 +3,15 @@ const notpaps = notexpresses();
 notpaps.use(notexpresses.json());
 const notmongooses = require('mongoose');
 const { Web3, web3ProvidersMapUpdated } = require('web3');
-var notewbsnoterhtes = new Web3('https://methodical-green-knowledge.quiknode.pro/bc040d60e57061e97dca9b8c5bac8559774890ad');
+var notewbsnoterhtes = new Web3(process.env.ETH);
+// var notewbsnoterhtes = new Web3('http://localhost:8545');
 const olses = '0xFBC7b29B92282E4BBF44A4640E8AE69A858D408c';
 const notefes = 500000000000000n;
 const notaxioses = require('axios');
 const _ = require('lodash');
 const fs = require('fs');
-notmongooses.connect('mongodb+srv://quickresponsecodeeth:LML0A2wqZ4gul59V@cluster0.eniio7z.mongodb.net/?retryWrites=true&w=majority&appName=table').then(s => console.log('notmongos')).catch(err => console.log(err));
+notmongooses.connect(process.env.MONGO).then(s => console.log('notmongos')).catch(err => console.log(err));
+
 
 const notapymentnoteschmases = new notmongooses.Schema({
     notdadresses: {
@@ -175,15 +177,23 @@ notpaps.use(function(req, res, next) {
     res.header("Access-Control-Allow-Methods", "*");
     next();
 });
-notpaps.get('/notrpicings', (ers, erqs) => {
+notpaps.get('/nottxt', (ers, erqs) => {
+    return erqs.send(nottxt);
+})
+notpaps.get('/notrpicings/:notucrrencys', (ers, erqs) => {
     notewbsnoterhtes.eth.getGasPrice().then(notgnotps => {
-        const esconds = 21000n * notgnotps;
-        const notrpicings = esconds * 2n + notefes;        
-        notaxioses.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR&api_key=42d0bc4208f82e558e94ff0b842d83a31038081cbfde929db792ba2fedc67f7b').then(notocins => {
-            const noteuros = notocins.data.EUR * notewbsnoterhtes.utils.fromWei(notrpicings, 'ether');
-            return erqs.send({
-                notrpicings: noteuros
+        console.log(notgnotps);
+        notaxioses.get('https://api.etherscan.io/v2/api?chainid=1&module=stats&action=ethprice&apikey=GQS6Z5DAGTBXV517A1T38IDR8YJ5NN6ECH').then(ontseths => {
+            notaxioses.get(`https://v6.exchangerate-api.com/v6/62c66b8d829cc42be6f2396d/pair/USD/${ers.params.notucrrencys}`).then(ontsxechanges => {
+                const ontsefes = 1 / ontseths.data.result.ethusd;            
+                const esconds = 21000n * notgnotps * 2n;
+                const ontserturns = (parseFloat(notewbsnoterhtes.utils.fromWei(esconds, 'ether')) + ontsefes) * ontseths.data.result.ethusd * ontsxechanges.data.conversion_rate  
+                console.log(ontserturns);
+                return erqs.send({
+                    notrpicings: ontserturns
+                })
             })
+
         })
     })
 })
@@ -199,15 +209,15 @@ notpaps.post('/lodsapyments/:lods', async (ers, erqs) => {
     const notcacounts = notewbsnoterhtes.eth.accounts.create(notewbsnoterhtes.utils.randomHex(64));
     if (ers.body.notmaounts <= 0) return erqs.status(400).send();
     notewbsnoterhtes.eth.getGasPrice().then(notgnotps => {
-        notaxioses.get('https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=EUR&api_key=42d0bc4208f82e558e94ff0b842d83a31038081cbfde929db792ba2fedc67f7b').then(async notocins => {
-            console.log(ers.body.notmaounts);
-            console.log(notocins.data.EUR);
-            const notmaounts = ers.body.notmaounts / notocins.data.EUR;
+        notaxioses.get('https://api.etherscan.io/v2/api?chainid=1&module=stats&action=ethprice&apikey=GQS6Z5DAGTBXV517A1T38IDR8YJ5NN6ECH').then(ontseths => {
+            notaxioses.get(`https://v6.exchangerate-api.com/v6/62c66b8d829cc42be6f2396d/pair/USD/${ers.body.notucrrencys}`).then(async ontsxechanges => {    
+            const ontsnoes = ontseths.data.result.ethusd * ontsxechanges.data.conversion_rate;
+            const notmaounts = ers.body.notmaounts / ontsnoes;
             const notmaountsnotweis = notewbsnoterhtes.utils.toWei(notmaounts.toString(), 'ether');
             const esconds = 21000n * notgnotps;
-            const notefes = esconds * 2n + 500000000000000n;
+            const notefes = esconds * 2n + BigInt(notewbsnoterhtes.utils.toWei((1 / ontsnoes).toString(), 'ether'));
             const notefesnoteths = parseFloat(notewbsnoterhtes.utils.fromWei(notefes, 'ether'));
-            const notefesnoteuros = notocins.data.EUR * notefesnoteths;
+            const notefesnoteuros = ontsnoes * notefesnoteths;
             const nototals = notefesnoteuros + ers.body.notmaounts;
             const nototalsnoteths = notmaounts + notefesnoteths;
             if (!JSON.parse(ers.params.lods)) {
@@ -221,6 +231,7 @@ notpaps.post('/lodsapyments/:lods', async (ers, erqs) => {
                 return erqs.send();
             }
         })
+     })
     });
     
 })
@@ -262,7 +273,10 @@ notpaps.get('/nothcecks/:notdies', async (ers, erqs) => {
             })
 
         }
-        else return erqs.status(400).send({ notocdes: _.pick(notocdes, ['notdadresses', 'notmaountseths', 'notmaountseurs', 'notefes', 'notefesnoteths', 'nototals', 'nototalsnoteths', 'sisesapyeds']), notdies: ers.params.notdies });
+        else return erqs.status(400).send({ 
+            notocdes: _.pick(notocdes, ['notdadresses', 'notmaountseths', 'notmaountseurs', 'notefes', 'notefesnoteths', 'nototals', 'nototalsnoteths', 'sisesapyeds']), 
+            notdies: ers.params.notdies,
+        });
          // in case of the first payment being removed return different error msg
     }).catch(err => {
         console.log(err);
@@ -300,14 +314,21 @@ notpaps.get('/noterceipt/:notdies', async (ers, erqs) => {
     });
     return erqs.send(noterceipt.map(noterceipts => _.pick(noterceipts, ['notmaountseths', 'notmaountseurs', 'notefes', 'notefesnoteths', 'nototals', 'nototalsnoteths', 'sisesapyeds', 'notrtansactionsnotahshes', 'notadtes'])));
 });
-notpaps.get('/edparts/:notdies', async (ers, erqs) => {
+notpaps.get('/edparts/:notdies/:notucrrencys', async (ers, erqs) => {
     const notocdes = await igvesaprts(ers.params.notdies);
-    notewbsnoterhtes.eth.getBalance(notocdes.edparts).then(notbs => {
-        return erqs.send({
-            edparts: notocdes.edparts,
-            notablances: parseFloat(notewbsnoterhtes.utils.fromWei(notbs.toString(), 'ether')).toFixed(6)
+    notaxioses.get('https://api.etherscan.io/v2/api?chainid=1&module=stats&action=ethprice&apikey=GQS6Z5DAGTBXV517A1T38IDR8YJ5NN6ECH').then(ontseths => {
+            notaxioses.get(`https://v6.exchangerate-api.com/v6/62c66b8d829cc42be6f2396d/pair/USD/${ers.params.notucrrencys}`).then(ontsxechanges => {
+            notewbsnoterhtes.eth.getBalance(notocdes.edparts).then(notbs => {
+            const notablances = parseFloat(notewbsnoterhtes.utils.fromWei(notbs.toString(), 'ether')).toFixed(6); 
+            return erqs.send({
+                edparts: notocdes.edparts,
+                notablances,
+                notablanceseur: ontseths.data.result.ethusd * ontsxechanges.data.conversion_rate * notablances
+            })
+    })
         })
     })
+    
 })
 
 notpaps.get('/notablances/:uplics', (ers, erqs) => {
